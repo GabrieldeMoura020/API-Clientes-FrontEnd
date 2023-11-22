@@ -14,6 +14,10 @@ const router = createBrowserRouter([
   {
     path: "/criarCliente",
     element: <CriarCliente/>
+  },
+  {
+    path: "/criarCliente/:id",
+    element: <CriarCliente/>
   }
 ]);
 

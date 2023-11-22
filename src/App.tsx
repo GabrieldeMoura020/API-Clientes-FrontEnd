@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import api, { IDataRequest, IDataResponse } from './provider/api';
 import { GridColDef } from '@mui/x-data-grid';
 import { DataGrid } from '@mui/x-data-grid/DataGrid';
 import { width } from '@mui/system';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete'
 
 function App() {
 
   const [clientes, setClientes] = useState<any>([]);
+
+  const navigate = useNavigate();
 
   const colunas: GridColDef[] = [
     {
@@ -36,6 +40,19 @@ function App() {
     {
     field: "telefone",
     headerName: "Telefone"
+    },
+    {
+      field: "actions",
+      headerName: "Ações",
+      renderCell: (params) => <>
+      <IconButton
+        size="small"
+        onClick={() => {
+            deletarRegistro(Number(params.id))
+        }}>
+          <DeleteIcon color='error'/>
+        </IconButton>
+      </>
     }
   ]
 
@@ -50,6 +67,24 @@ function App() {
     }
   }
 
+  useEffect(() => {
+    carregarClientes();
+  },[])
+
+  const deletarRegistro = async (id: number) =>{
+    const request: IDataRequest = {
+      url: `/clientes/${id}`
+    }
+
+    const response: IDataResponse = await api.delete(request);
+    
+    if (response.statusCode === 200) {
+      alert(`Registro ${id} deletado com sucesso!`);
+      carregarClientes();
+    }
+
+  }
+
   return(
     <div>
       <button onClick={() => {
@@ -62,7 +97,7 @@ function App() {
         <DataGrid 
           rows={clientes}
           columns={colunas} 
-          checkboxSelection
+         // checkboxSelection
           pageSizeOptions={[10,25,50]}
           initialState={{
             pagination: {
@@ -70,6 +105,9 @@ function App() {
                 pageSize:5
               }
             }
+          }}
+          onRowDoubleClick={(param) => {
+            navigate(`/criarCliente/${param.id}`)
           }}
           />
       </div>
